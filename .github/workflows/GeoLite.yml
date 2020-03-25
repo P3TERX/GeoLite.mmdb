@@ -1,0 +1,43 @@
+#=================================================
+# https://github.com/P3TERX/GeoLite.mmdb
+# Description: Publish GeoLite.mmdb
+# Lisence: MIT
+# Author: P3TERX
+# Blog: https://p3terx.com
+#=================================================
+
+name: Publish GeoLite.mmdb
+
+on:
+  schedule:
+    - cron: 0 22 */3 * *
+#  watch:
+#    types: started
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - name: Download GeoLite.mmdb
+      run: |
+        wget -nv -O- "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN&license_key=${LICENSE_KEY}&suffix=tar.gz" | tar zxvC .
+        wget -nv -O- "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${LICENSE_KEY}&suffix=tar.gz" | tar zxvC .
+        wget -nv -O- "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key=${LICENSE_KEY}&suffix=tar.gz" | tar zxvC .
+        mkdir -p upload
+        cp -v GeoLite*/*.mmdb upload
+      env:
+        LICENSE_KEY: ${{ secrets.LICENSE_KEY }}
+
+    - name: Push to "download" branch
+      run: |
+        cd upload
+        git init
+        git config user.name "${{ github.actor }}"
+        git config user.email "${{ github.actor }}@users.noreply.github.com"
+        git checkout -b download
+        git add .
+        git commit -m "$(date +"%Y.%m.%d")"
+        git remote add origin "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+        git push -f origin download
