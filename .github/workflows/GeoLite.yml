@@ -31,6 +31,22 @@ jobs:
         cp -v GeoLite*/*.mmdb upload
         echo "TAG_NAME=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
 
+    - name: Download GeoLite.csv
+      run: |
+        wget -nv -O GeoLite2-ASN-CSV.zip "https://download.maxmind.com/app/geoip_download_by_token?edition_id=GeoLite2-ASN-CSV&license_key=${{ secrets.LICENSE_KEY }}&suffix=zip"
+        wget -nv -O GeoLite2-Country-CSV.zip "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country-CSV&license_key=${{ secrets.LICENSE_KEY }}&suffix=zip"
+        wget -nv -O GeoLite2-City-CSV.zip "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City-CSV&license_key=${{ secrets.LICENSE_KEY }}&suffix=zip"
+    
+    - name: Decompress Zips
+      uses: TonyBogdanov/zip@1.0
+      with:
+          args: unzip -qq GeoLite2-*-CSV.zip
+
+    - name: Copy GeoLite2.csv
+      run: |
+        cp -v GeoLite*/*.csv upload
+        echo "TAG_NAME=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
+
     - name: Push to "download" branch
       run: |
         cd upload
@@ -50,7 +66,9 @@ jobs:
       with:
         tag_name: ${{ env.TAG_NAME }}
         body: ${{ env.TAG_NAME }}
-        files: upload/*.mmdb
+        files: |
+          upload/*.mmdb
+          upload/*.csv
 
     - name: Remove old Releases
       uses: dev-drprasad/delete-older-releases@v0.2.0
