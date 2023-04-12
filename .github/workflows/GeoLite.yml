@@ -45,9 +45,9 @@ jobs:
     - name: Copy GeoLite2.csv
       run: |
         cp -v GeoLite*/*.csv upload
-        split -l 650000 -d upload/GeoLite2-City-Blocks-IPv4.csv upload/GeoLite2-City-Blocks-IPv4.csv.
+        split -l 650000 -d --additional-suffix .csv upload/GeoLite2-City-Blocks-IPv4.csv upload/GeoLite2-City-Blocks-IPv4.csv.
         rm upload/GeoLite2-City-Blocks-IPv4.csv
-        split -l 650000 -d upload/GeoLite2-City-Blocks-IPv6.csv upload/GeoLite2-City-Blocks-IPv6.csv.
+        split -l 650000 -d --additional-suffix .csv upload/GeoLite2-City-Blocks-IPv6.csv upload/GeoLite2-City-Blocks-IPv6.csv.
         rm upload/GeoLite2-City-Blocks-IPv6.csv
         echo "TAG_NAME=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
 
